@@ -137,7 +137,12 @@ export const useSessionStore = create<SessionStore>()(
           };
         }),
       finish: () => {
-        const finished = finishGame(get().activeGame);
+        const currentGame = get().activeGame;
+        if (currentGame.status === "finished") {
+          return summarizeGame(currentGame);
+        }
+
+        const finished = finishGame(currentGame);
         const summary = summarizeGame(finished);
         set((state) => ({
           activeGame: finished,

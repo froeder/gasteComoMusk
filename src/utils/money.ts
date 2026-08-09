@@ -43,14 +43,26 @@ export function isGreaterThan(left: string, right: string): boolean {
   return toCents(left) > toCents(right);
 }
 
-export function maxAffordableQuantity(balanceCents: string, unitPriceCents: string, maxQuantity?: number): number {
+export function maxAffordableQuantity(
+  balanceCents: string,
+  unitPriceCents: string,
+  maxQuantity?: number,
+  alreadyOwned = 0,
+): number {
   const price = toCents(unitPriceCents);
   if (price <= 0n) {
     return 0;
   }
 
   const raw = toCents(balanceCents) / price;
-  const capped = maxQuantity === undefined ? raw : raw > BigInt(maxQuantity) ? BigInt(maxQuantity) : raw;
+  const remainingLimitedQuantity =
+    maxQuantity === undefined ? undefined : Math.max(0, maxQuantity - Math.max(0, alreadyOwned));
+  const capped =
+    remainingLimitedQuantity === undefined
+      ? raw
+      : raw > BigInt(remainingLimitedQuantity)
+        ? BigInt(remainingLimitedQuantity)
+        : raw;
   const safeLimit = BigInt(Number.MAX_SAFE_INTEGER);
   return Number(capped > safeLimit ? safeLimit : capped);
 }

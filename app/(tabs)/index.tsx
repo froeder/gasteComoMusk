@@ -1,7 +1,7 @@
 import NetInfo from "@react-native-community/netinfo";
 import * as Haptics from "expo-haptics";
-import { useFocusEffect } from "expo-router";
-import { Dice5, RotateCcw, ShoppingCart, Undo2 } from "lucide-react-native";
+import { useFocusEffect, useRouter } from "expo-router";
+import { Dice5, FileText, RotateCcw, ShoppingCart, Undo2 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -9,6 +9,7 @@ import {
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -48,6 +49,7 @@ const sortLabels: Record<CatalogSort, string> = {
 };
 
 export default function SpendScreen() {
+  const router = useRouter();
   const activeGame = useSessionStore((state) => state.activeGame);
   const buy = useSessionStore((state) => state.buy);
   const sell = useSessionStore((state) => state.sell);
@@ -127,6 +129,10 @@ export default function SpendScreen() {
 
   const onBuy = useCallback(
     (item: CatalogItem, quantity: number) => {
+      if (quantity <= 0) {
+        return;
+      }
+
       const subtotal = BigInt(item.priceCents) * BigInt(quantity);
       const initial = BigInt(activeGame.wealthSnapshot.initialWealthCents);
       const consumesTooMuch = subtotal * 100n >= initial * 10n;
@@ -136,6 +142,14 @@ export default function SpendScreen() {
       };
 
       if (consumesTooMuch) {
+        if (Platform.OS === "web") {
+          const browserConfirm = (globalThis as typeof globalThis & { confirm?: (message?: string) => boolean }).confirm;
+          if (!browserConfirm || browserConfirm("Essa compra consome uma parcela enorme da fortuna simulada. Confirmar?")) {
+            run();
+          }
+          return;
+        }
+
         Alert.alert("Compra gigante", "Essa compra consome uma parcela enorme da fortuna simulada. Confirmar?", [
           { text: "Cancelar", style: "cancel" },
           { text: "Comprar", style: "default", onPress: run },
@@ -149,7 +163,9 @@ export default function SpendScreen() {
   );
 
   const surpriseMe = useCallback(() => {
-    const affordable = filteredItems.filter((item) => maxAffordableQuantity(remaining, item.priceCents, item.maxQuantity) > 0);
+    const affordable = filteredItems.filter(
+      (item) => maxAffordableQuantity(remaining, item.priceCents, item.maxQuantity, activeGame.purchases[item.id] ?? 0) > 0,
+    );
     if (affordable.length === 0) {
       Alert.alert("Nada cabe no saldo", "Finalize a partida ou venda algum item.");
       return;
@@ -157,14 +173,28 @@ export default function SpendScreen() {
 
     const item = affordable[Math.floor(Math.random() * affordable.length)];
     onBuy(item, 1);
-  }, [filteredItems, onBuy, remaining]);
+  }, [activeGame.purchases, filteredItems, onBuy, remaining]);
 
   const finishWithConfirmation = useCallback(() => {
+    const run = () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      finish();
+      router.push("/receipt");
+    };
+
+    if (Platform.OS === "web") {
+      const browserConfirm = (globalThis as typeof globalThis & { confirm?: (message?: string) => boolean }).confirm;
+      if (!browserConfirm || browserConfirm("Finalizar partida e gerar o recibo ficticio?")) {
+        run();
+      }
+      return;
+    }
+
     Alert.alert("Finalizar partida", "O cronometro sera pausado e um recibo ficticio sera gerado.", [
       { text: "Continuar jogando", style: "cancel" },
-      { text: "Finalizar", onPress: () => finish() },
+      { text: "Finalizar", onPress: run },
     ]);
-  }, [finish]);
+  }, [finish, router]);
 
   const renderItem = useCallback(
     ({ item }: { item: CatalogItem }) => (
@@ -218,6 +248,7 @@ export default function SpendScreen() {
               <PrimaryButton label="Desfazer" icon={Undo2} onPress={undo} variant="secondary" />
             </View>
             <View style={styles.actions}>
+              <PrimaryButton label="Nota fiscal" icon={FileText} onPress={() => router.push("/receipt")} variant="secondary" />
               <PrimaryButton label="Finalizar" icon={ShoppingCart} onPress={finishWithConfirmation} />
               <PrimaryButton label="Nova partida" icon={RotateCcw} onPress={newGame} variant="secondary" />
             </View>
@@ -306,7 +337,7 @@ function CatalogCard({
 }) {
   const [quantityText, setQuantityText] = useState("1");
   const quantity = Math.max(1, Number.parseInt(quantityText, 10) || 1);
-  const max = maxAffordableQuantity(balanceCents, item.priceCents, item.maxQuantity);
+  const max = maxAffordableQuantity(balanceCents, item.priceCents, item.maxQuantity, boughtQuantity);
   const categoryColor = getCategoryColor(item.category);
 
   return (
@@ -336,7 +367,7 @@ function CatalogCard({
           {[1, 10, 100].map((step) => (
             <PrimaryButton key={step} label={`+${step}`} onPress={() => onBuy(item, step)} disabled={max < step} variant="secondary" />
           ))}
-          <PrimaryButton label="Max" onPress={() => onBuy(item, max)} disabled={max <= 0} variant="secondary" />
+          <PrimaryButton label="Max" onPress={() => onBuy(item, max)} disabled={max <= 0} variant="secondary" accessibilityLabel={`Comprar maximo possivel de ${item.name}`} />
         </View>
         <View style={styles.cardActions}>
           <PrimaryButton

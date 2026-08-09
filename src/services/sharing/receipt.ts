@@ -5,7 +5,12 @@ import type { GameSummary, UserProfile, WealthSnapshot } from "@/src/types";
 import { formatCurrency, formatPercentageFromBasisPoints } from "@/src/utils/money";
 import { formatDuration } from "@/src/utils/time";
 
-export function buildReceiptHtml(profile: UserProfile, summary: GameSummary, snapshot: WealthSnapshot): string {
+export function buildReceiptHtml(
+  profile: UserProfile,
+  summary: GameSummary,
+  snapshot: WealthSnapshot,
+  status: "active" | "finished" = "active",
+): string {
   const rows = summary.boughtItems
     .slice(0, 30)
     .map(
@@ -32,7 +37,7 @@ export function buildReceiptHtml(profile: UserProfile, summary: GameSummary, sna
     <body>
       <section class="receipt">
         <h1>Gaste como Musk</h1>
-        <p class="muted">Nota divertida sem validade fiscal</p>
+        <p class="muted">${status === "finished" ? "Nota divertida final" : "Nota divertida parcial"} sem validade fiscal</p>
         <p>Apelido: <strong>${profile.nickname}</strong></p>
         <p>Partida: ${summary.gameId}</p>
         <p>Fortuna inicial: ${formatCurrency(snapshot.initialWealthCents)}</p>
@@ -55,8 +60,13 @@ export function buildShareText(summary: GameSummary): string {
   )}. Isso representa ${formatPercentageFromBasisPoints(summary.percentageSpentBasisPoints)} da fortuna. Voce consegue gastar mais rapido?`;
 }
 
-export async function shareReceiptPdf(profile: UserProfile, summary: GameSummary, snapshot: WealthSnapshot): Promise<void> {
-  const html = buildReceiptHtml(profile, summary, snapshot);
+export async function shareReceiptPdf(
+  profile: UserProfile,
+  summary: GameSummary,
+  snapshot: WealthSnapshot,
+  status: "active" | "finished" = "active",
+): Promise<void> {
+  const html = buildReceiptHtml(profile, summary, snapshot, status);
   const file = await Print.printToFileAsync({ html, base64: false });
 
   if (await Sharing.isAvailableAsync()) {

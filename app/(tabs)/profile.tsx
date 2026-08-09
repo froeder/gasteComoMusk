@@ -28,8 +28,8 @@ export default function ProfileScreen() {
   const activeGame = useSessionStore((state) => state.activeGame);
   const history = useSessionStore((state) => state.history);
   const updateNickname = useSessionStore((state) => state.updateNickname);
-  const finish = useSessionStore((state) => state.finish);
   const newGame = useSessionStore((state) => state.newGame);
+  const finish = useSessionStore((state) => state.finish);
   const summary = summarizeGame(activeGame);
   const unlocked = getUnlockedAchievements(summary);
 
@@ -45,8 +45,7 @@ export default function ProfileScreen() {
   }
 
   async function sharePdf() {
-    const finalSummary = activeGame.status === "finished" ? summary : finish();
-    await shareReceiptPdf(profile, finalSummary, activeGame.wealthSnapshot);
+    await shareReceiptPdf(profile, summary, activeGame.wealthSnapshot, activeGame.status);
   }
 
   function copyTextFallback() {

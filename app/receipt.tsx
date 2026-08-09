@@ -20,11 +20,14 @@ export default function ReceiptScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.receipt}>
           <Text style={styles.logo}>Gaste como Musk</Text>
-          <Text style={styles.muted}>Nota fiscal divertida - sem validade fiscal</Text>
+          <Text style={styles.muted}>
+            {activeGame.status === "finished" ? "Nota fiscal divertida final" : "Nota fiscal divertida parcial"} - sem validade fiscal
+          </Text>
           <View style={styles.divider} />
           <Text style={styles.line}>Apelido: {profile.nickname}</Text>
           <Text style={styles.line}>Partida: {summary.gameId}</Text>
-          <Text style={styles.line}>Data: {new Date().toLocaleString("pt-BR")}</Text>
+          <Text style={styles.line}>Emitida em: {new Date().toLocaleString("pt-BR")}</Text>
+          <Text style={styles.line}>Status da partida: {activeGame.status === "finished" ? "finalizada" : "em andamento"}</Text>
           <Text style={styles.line}>Fortuna inicial: {formatCurrency(activeGame.wealthSnapshot.initialWealthCents)}</Text>
           <Text style={styles.total}>Total gasto: {formatCurrency(summary.totalSpentCents)}</Text>
           <Text style={styles.line}>Saldo restante: {formatCurrency(summary.remainingBalanceCents)}</Text>
@@ -43,7 +46,11 @@ export default function ReceiptScreen() {
           <View style={styles.divider} />
           <Text style={styles.footer}>Simulacao ficticia - sem valor fiscal.</Text>
         </View>
-        <PrimaryButton label="Compartilhar PDF" icon={Share2} onPress={() => shareReceiptPdf(profile, summary, activeGame.wealthSnapshot)} />
+        <PrimaryButton
+          label="Compartilhar PDF"
+          icon={Share2}
+          onPress={() => shareReceiptPdf(profile, summary, activeGame.wealthSnapshot, activeGame.status)}
+        />
       </ScrollView>
     </Screen>
   );

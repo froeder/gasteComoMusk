@@ -3,7 +3,7 @@ import { filterCatalog } from "@/src/features/catalog/filterCatalog";
 import { buyItem, calculateRemainingBalance, createInitialGame, finishGame, sellItem, summarizeGame } from "@/src/features/game/gameEngine";
 import { validateRankingSubmission } from "@/src/features/ranking/validation";
 import type { UserProfile, WealthSnapshot } from "@/src/types";
-import { percentageBasisPoints } from "@/src/utils/money";
+import { maxAffordableQuantity, percentageBasisPoints } from "@/src/utils/money";
 import { closeActiveInterval } from "@/src/utils/time";
 
 const snapshot: WealthSnapshot = {
@@ -79,6 +79,11 @@ describe("game engine", () => {
     expect(percentageBasisPoints("11000", "10000")).toBe(10000);
   });
 
+  it("calcula maximo descontando itens limitados ja comprados", () => {
+    expect(maxAffordableQuantity("100000000000000", "1", 5, 3)).toBe(2);
+    expect(maxAffordableQuantity("100000000000000", "1", 5, 5)).toBe(0);
+  });
+
   it("fecha intervalos de cronometro por timestamps", () => {
     const duration = closeActiveInterval(5000, "2026-08-09T00:00:00.000Z", "2026-08-09T00:00:10.000Z");
     expect(duration).toBe(15000);
@@ -101,6 +106,21 @@ describe("game engine", () => {
     expect(finished.currentActiveIntervalStartedAt).toBeNull();
     expect(summary.activeDurationMs).toBe(10000);
     expect(summary.totalUnits).toBe(10);
+  });
+
+  it("finalizar uma partida ja finalizada preserva o resumo", () => {
+    const game = createInitialGame("user-1", snapshot, "2026-08-09T00:00:00.000Z");
+    const bought = buyItem(game, "cafe-premium", 2, "2026-08-09T00:00:01.000Z");
+    expect(bought.ok).toBe(true);
+    if (!bought.ok) {
+      return;
+    }
+
+    const firstFinish = finishGame(bought.game, "2026-08-09T00:00:05.000Z");
+    const secondFinish = finishGame(firstFinish, "2026-08-09T00:01:05.000Z");
+
+    expect(summarizeGame(secondFinish).totalSpentCents).toBe(summarizeGame(firstFinish).totalSpentCents);
+    expect(secondFinish.status).toBe("finished");
   });
 });
 

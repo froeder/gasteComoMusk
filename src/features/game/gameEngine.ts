@@ -66,11 +66,11 @@ export function buyItem(
   }
 
   const alreadyBought = game.purchases[itemId] ?? 0;
-  if (item.maxQuantity !== undefined && alreadyBought + quantity > item.maxQuantity) {
+  const balance = calculateRemainingBalance(game);
+  if (item.maxQuantity !== undefined && quantity > maxAffordableQuantity(balance, item.priceCents, item.maxQuantity, alreadyBought)) {
     return { ok: false, reason: "Limite maximo desse item atingido." };
   }
 
-  const balance = calculateRemainingBalance(game);
   const subtotal = multiplyCents(item.priceCents, quantity);
   if (compareCents(subtotal, balance) > 0) {
     return { ok: false, reason: "Saldo insuficiente para essa compra." };
@@ -249,5 +249,7 @@ export function summarizeGame(game: GameStateSnapshot, nowIso = new Date().toISO
 
 export function canFinishBecauseNoAffordableItem(game: GameStateSnapshot): boolean {
   const balance = calculateRemainingBalance(game);
-  return catalogItems.filter((item) => item.active).every((item) => maxAffordableQuantity(balance, item.priceCents, item.maxQuantity) === 0);
+  return catalogItems
+    .filter((item) => item.active)
+    .every((item) => maxAffordableQuantity(balance, item.priceCents, item.maxQuantity, game.purchases[item.id] ?? 0) === 0);
 }
