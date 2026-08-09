@@ -7,9 +7,10 @@ import type { CatalogItem } from "@/src/types";
 
 type ItemArtworkProps = {
   item: CatalogItem;
+  variant?: "wide" | "compact";
 };
 
-export function ItemArtwork({ item }: ItemArtworkProps) {
+export function ItemArtwork({ item, variant = "wide" }: ItemArtworkProps) {
   const source = catalogImageAssets[item.id];
 
   return (
@@ -17,17 +18,15 @@ export function ItemArtwork({ item }: ItemArtworkProps) {
       accessible
       accessibilityRole="image"
       accessibilityLabel={item.image.alt}
-      style={styles.wrap}
+      style={[styles.wrap, variant === "compact" ? styles.compactWrap : styles.wideWrap]}
     >
-      <Image source={source} style={styles.image} contentFit="cover" cachePolicy="memory-disk" transition={120} />
+      <Image source={source} style={styles.image} contentFit="contain" cachePolicy="memory-disk" transition={120} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    width: 108,
-    height: 88,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.border,
@@ -35,6 +34,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.surfaceSoft,
+  },
+  wideWrap: {
+    width: 132,
+    aspectRatio: 4 / 3,
+  },
+  compactWrap: {
+    width: "100%",
+    aspectRatio: 4 / 3,
   },
   image: {
     width: "100%",

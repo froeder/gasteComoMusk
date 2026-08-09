@@ -11,8 +11,10 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.froeder.gastecomomusk",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#050b18",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -38,15 +40,20 @@
       "expo-sharing"
     ],
     "extra": {
+      "eas": {
+        "projectId": "05fe52ca-9ee7-4bc7-bd22-2b3cbe5efbbb"
+      },
       "firebaseApiKey": "",
       "firebaseAuthDomain": "",
       "firebaseProjectId": "",
       "firebaseStorageBucket": "",
       "firebaseMessagingSenderId": "",
-      "firebaseAppId": ""
+      "firebaseAppId": "",
+      "router": {}
     },
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "froeder"
   }
 }

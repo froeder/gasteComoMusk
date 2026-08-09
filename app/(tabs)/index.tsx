@@ -15,6 +15,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from "react-native";
 
@@ -335,14 +336,16 @@ function CatalogCard({
   onBuy: (item: CatalogItem, quantity: number) => void;
   onSell: (quantity: number) => void;
 }) {
+  const { width } = useWindowDimensions();
   const [quantityText, setQuantityText] = useState("1");
   const quantity = Math.max(1, Number.parseInt(quantityText, 10) || 1);
   const max = maxAffordableQuantity(balanceCents, item.priceCents, item.maxQuantity, boughtQuantity);
   const categoryColor = getCategoryColor(item.category);
+  const isCompact = width < 520;
 
   return (
-    <View style={styles.card}>
-      <ItemArtwork item={item} />
+    <View style={[styles.card, isCompact ? styles.cardCompact : styles.cardWide]}>
+      <ItemArtwork item={item} variant={isCompact ? "compact" : "wide"} />
       <View style={styles.cardBody}>
         <View style={styles.cardTitleRow}>
           <Text style={styles.itemName}>{item.name}</Text>
@@ -367,7 +370,13 @@ function CatalogCard({
           {[1, 10, 100].map((step) => (
             <PrimaryButton key={step} label={`+${step}`} onPress={() => onBuy(item, step)} disabled={max < step} variant="secondary" />
           ))}
-          <PrimaryButton label="Max" onPress={() => onBuy(item, max)} disabled={max <= 0} variant="secondary" accessibilityLabel={`Comprar maximo possivel de ${item.name}`} />
+          <PrimaryButton
+            label="Max"
+            onPress={() => onBuy(item, max)}
+            disabled={max <= 0}
+            variant="secondary"
+            accessibilityLabel={`Comprar maximo possivel de ${item.name}`}
+          />
         </View>
         <View style={styles.cardActions}>
           <PrimaryButton
@@ -375,8 +384,15 @@ function CatalogCard({
             onPress={() => onBuy(item, quantity)}
             onLongPress={() => onBuy(item, Math.min(10, max))}
             disabled={max <= 0}
+            style={styles.mainActionButton}
           />
-          <PrimaryButton label="Vender" onPress={() => onSell(quantity)} disabled={boughtQuantity <= 0} variant="danger" />
+          <PrimaryButton
+            label="Vender"
+            onPress={() => onSell(quantity)}
+            disabled={boughtQuantity <= 0}
+            variant="danger"
+            style={styles.mainActionButton}
+          />
         </View>
         <Text style={styles.license}>{item.image.source} - {item.image.license}</Text>
       </View>
@@ -483,7 +499,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   card: {
-    flexDirection: "row",
     gap: 12,
     padding: 12,
     marginBottom: 12,
@@ -492,6 +507,12 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
     ...shadow,
+  },
+  cardWide: {
+    flexDirection: "row",
+  },
+  cardCompact: {
+    flexDirection: "column",
   },
   cardBody: {
     flex: 1,
@@ -537,9 +558,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 6,
+    alignItems: "center",
   },
   quantityInput: {
-    width: 70,
+    minWidth: 70,
+    flexGrow: 1,
+    flexBasis: 74,
     minHeight: 44,
     borderRadius: 8,
     borderWidth: 1,
@@ -551,6 +575,9 @@ const styles = StyleSheet.create({
   cardActions: {
     flexDirection: "row",
     gap: 8,
+  },
+  mainActionButton: {
+    flex: 1,
   },
   license: {
     color: colors.textMuted,

@@ -1,0 +1,53 @@
+[debug] [2026-08-09T23:20:01.062Z] ----------------------------------------------------------------------
+[debug] [2026-08-09T23:20:01.066Z] Command:       /home/john/.nvm/versions/node/v24.16.0/bin/node /home/john/.nvm/versions/node/v24.16.0/bin/firebase projects:list --json
+[debug] [2026-08-09T23:20:01.066Z] CLI Version:   15.22.3
+[debug] [2026-08-09T23:20:01.066Z] Platform:      linux
+[debug] [2026-08-09T23:20:01.067Z] Node Version:  v24.16.0
+[debug] [2026-08-09T23:20:01.067Z] Detected Agent: codex_cli
+[debug] [2026-08-09T23:20:01.067Z] Time:          Sun Aug 09 2026 20:20:01 GMT-0300 (Brasilia Standard Time)
+[debug] [2026-08-09T23:20:01.067Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-09T23:20:01.071Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-08-09T23:20:01.488Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-09T23:20:01.489Z] > authorizing via signed-in user (froeder3@gmail.com)
+[debug] [2026-08-09T23:20:01.493Z] Checked if tokens are valid: false, expires at: 1786236085302
+[debug] [2026-08-09T23:20:01.493Z] Checked if tokens are valid: false, expires at: 1786236085302
+[debug] [2026-08-09T23:20:01.494Z] > refreshing access token with scopes: []
+[debug] [2026-08-09T23:20:01.496Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-08-09T23:20:01.496Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-08-09T23:20:01.709Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-08-09T23:20:01.709Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-08-09T23:20:01.719Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-08-09T23:20:01.900Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-08-09T23:20:01.900Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-08-09T23:20:03.011Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2026-08-09T23:20:03.011Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[info] ┌──────────────────────┬───────────────────┬────────────────┬──────────────────────┐
+│ Project Display Name │ Project ID        │ Project Number │ Resource Location ID │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ admin-arbomais       │ admin-arbomais    │ 205148614154   │ us-central           │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ arbomais             │ arbomais          │ 233057959547   │ us-central           │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ arbomais-dev         │ arbomais-dev      │ 692806793349   │ us-central           │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ arbomaisufms         │ arbomaisbd        │ 179223952502   │ us-central           │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ arbomaisufms         │ arbomaisufms      │ 546366962801   │ us-central           │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ artearoma-bypry      │ artearoma-bypry   │ 904438593991   │ us-central           │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ gastecomomusk        │ gastecomomusk     │ 960338117973   │ [Not specified]      │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ guiame               │ guiamemvp         │ 958295215584   │ us-central           │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ judonbr              │ judonbr           │ 215795257623   │ us-central           │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ minhasnotas          │ minhasnotas-c6b28 │ 369116032477   │ [Not specified]      │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ pokedexdojohn        │ pokedexdojohn     │ 992094936724   │ [Not specified]      │
+├──────────────────────┼───────────────────┼────────────────┼──────────────────────┤
+│ privadIn             │ privadin-d7ebe    │ 676560017485   │ [Not specified]      │
+└──────────────────────┴───────────────────┴────────────────┴──────────────────────┘
+[info] 
+[info] 12 project(s) total.
