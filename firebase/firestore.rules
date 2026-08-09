@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    match /profiles/{userId} {
+      allow read: if owns(userId);
+      allow create, update: if owns(userId)
+        && request.resource.data.userId == userId
+        && request.resource.data.keys().hasOnly([
+          'userId', 'nickname', 'initials', 'avatarColor', 'acceptedTerms', 'createdAt',
+          'bestGameId', 'bestSpentCents', 'bestPercentageBasisPoints', 'fastestCompletionMs',
+          'completedGames', 'totalItemsBought', 'favoriteCategory'
+        ]);
+      allow delete: if owns(userId);
+    }
+
+    match /games/{gameId} {
+      allow read, create, update, delete: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+
+      match /transactions/{transactionId} {
+        allow read, create: if signedIn()
+          && get(/databases/$(database)/documents/games/$(gameId)).data.ownerId == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    match /leaderboards/{period}/entries/{entryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /catalog/{itemId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /catalogVersions/{versionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /wealthSnapshots/{snapshotId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /appConfig/public {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /achievements/{achievementId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /userAchievements/{userId}/items/{achievementId} {
+      allow read: if owns(userId);
+      allow write: if false;
+    }
+  }
+}
