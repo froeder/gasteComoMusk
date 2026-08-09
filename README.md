@@ -9,6 +9,7 @@ Os valores sao estimativas para entretenimento. Todas as compras sao ficticias e
 - App Expo Router com tres abas: Gastar, Ranking e Perfil.
 - Autenticacao anonima via Firebase quando as variaveis existem; modo local mock quando nao existem.
 - Catalogo inicial com 90+ itens, categorias, filtros, busca, ordenacao, destaques e marcadores de real/estimado/hipotetico/ficticio.
+- Imagens PNG locais originais para todos os itens do catalogo.
 - Compra, venda, atalhos +1/+10/+100/Maximo, desfazer e protecao contra saldo negativo.
 - Dinheiro em centavos usando `BigInt`, evitando perda de precisao com trilhoes.
 - Cronometro por timestamps, pausado ao perder foco, trocar de aba ou ir para background.
@@ -126,7 +127,15 @@ Os snapshots sao gravados por partida, entao uma atualizacao diaria nao muda uma
 
 ## Imagens e licencas
 
-O MVP usa placeholders originais por item/categoria renderizados no app com `expo-image` e metadados de autoria/licenca no catalogo. Para producao, substitua por assets proprios, licenciados, Wikimedia Commons compativel, Unsplash/Pexels quando adequado ou imagens oficiais permitidas.
+O MVP usa imagens PNG originais geradas localmente em `assets/catalog/`, uma por item, carregadas pelo app com `expo-image`. Os metadados de autoria/licenca ficam no catalogo.
+
+Para regenerar as imagens e o mapa de assets:
+
+```bash
+npm run assets:catalog
+```
+
+Para producao, voce pode substituir esses assets por imagens proprias, licenciadas, Wikimedia Commons compativel, Unsplash/Pexels quando adequado ou imagens oficiais permitidas.
 
 ## Limitacoes conhecidas
 

@@ -46,13 +46,13 @@ const categoryColors: Record<CatalogCategory, string> = {
   Outros: "#d1d5db",
 };
 
-function imageFor(itemName: string, category: CatalogCategory): CatalogImage {
+function imageFor(itemId: string, itemName: string): CatalogImage {
   return {
-    uri: "asset://placeholder-original",
+    uri: `asset://catalog/${itemId}.png`,
     author: "Equipe Gaste como Musk",
-    source: "Placeholder original gerado no projeto",
+    source: "Imagem original local gerada no projeto",
     license: "Uso interno do projeto",
-    alt: `Ilustracao original em cartao para ${itemName}`,
+    alt: `Ilustracao original para ${itemName}`,
   };
 }
 
@@ -166,7 +166,7 @@ export const catalogItems: CatalogItem[] = seeds.map(
         : `${name} usa uma estimativa plausivel para fins de jogo. Valores variam por mercado, impostos, configuracao e disponibilidade.`,
     priceCents,
     category,
-    image: imageFor(name, category),
+    image: imageFor(id, name),
     priceSource: categoryNotes[category],
     priceReferenceDate: "2026-08-09",
     estimateType,
