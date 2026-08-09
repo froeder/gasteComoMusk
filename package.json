@@ -39,12 +39,17 @@
   "devDependencies": {
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "^29.5.14",
+    "@types/node": "^26.2.0",
+    "@types/pngjs": "^6.0.5",
     "@types/react": "~19.2.2",
     "eslint": "^9.39.5",
     "eslint-config-expo": "^57.0.1",
     "jest": "^29.7.0",
     "jest-expo": "^57.0.3",
+    "jpeg-js": "^0.4.4",
+    "pngjs": "^7.0.0",
     "prettier": "^3.9.6",
+    "tsx": "^4.23.11",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -53,6 +58,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "assets:catalog": "node scripts/generateCatalogImages.mjs",
+    "validate:catalog-images": "tsx scripts/validate-catalog-images.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "jest --runInBand",

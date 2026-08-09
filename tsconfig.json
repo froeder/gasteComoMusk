@@ -4,7 +4,8 @@
     "strict": true,
     "moduleResolution": "bundler",
     "types": [
-      "jest"
+      "jest",
+      "node"
     ],
     "paths": {
       "@/*": [
