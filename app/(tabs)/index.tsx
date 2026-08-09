@@ -1,7 +1,9 @@
 import NetInfo from "@react-native-community/netinfo";
 import * as Haptics from "expo-haptics";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Dice5, FileText, RotateCcw, ShoppingCart, Undo2 } from "lucide-react-native";
+import type { LucideIcon } from "lucide-react-native";
+import { Dice5, FileText, RotateCcw, Search, ShoppingCart, Undo2 } from "lucide-react-native";
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -48,6 +50,8 @@ const sortLabels: Record<CatalogSort, string> = {
   mostBought: "Mais comprados",
   featured: "Destaques",
 };
+
+const primaryCategories = ["Todos", "Tecnologia", "Carros", "Imoveis", "Viagens", "Aviacao", "Luxo", "Espaco"];
 
 export default function SpendScreen() {
   const router = useRouter();
@@ -244,34 +248,46 @@ export default function SpendScreen() {
             </Text>
             <Text style={styles.source}>Status: {isConnected ? "online" : "offline com sessao local preservada"}</Text>
             {lastMessage ? <Text style={styles.toast}>{lastMessage}</Text> : null}
-            <View style={styles.actions}>
-              <PrimaryButton label="Surpreenda-me" icon={Dice5} onPress={surpriseMe} variant="secondary" />
-              <PrimaryButton label="Desfazer" icon={Undo2} onPress={undo} variant="secondary" />
+            <View style={styles.controlPanel}>
+              <View style={styles.commandGrid}>
+                <CommandButton label="Surpreenda-me" icon={Dice5} onPress={surpriseMe} />
+                <CommandButton label="Desfazer" icon={Undo2} onPress={undo} />
+                <CommandButton label="Nota fiscal" icon={FileText} onPress={() => router.push("/receipt")} />
+                <CommandButton label="Finalizar" icon={ShoppingCart} onPress={finishWithConfirmation} accent />
+                <CommandButton label="Nova partida" icon={RotateCcw} onPress={newGame} />
+              </View>
+              <View style={styles.searchWrap}>
+                <Search size={18} color={colors.textMuted} />
+                <TextInput
+                  accessibilityLabel="Buscar item por nome"
+                  value={search}
+                  onChangeText={setSearch}
+                  placeholder="Buscar item"
+                  placeholderTextColor={colors.textMuted}
+                  style={styles.search}
+                />
+              </View>
             </View>
-            <View style={styles.actions}>
-              <PrimaryButton label="Nota fiscal" icon={FileText} onPress={() => router.push("/receipt")} variant="secondary" />
-              <PrimaryButton label="Finalizar" icon={ShoppingCart} onPress={finishWithConfirmation} />
-              <PrimaryButton label="Nova partida" icon={RotateCcw} onPress={newGame} variant="secondary" />
-            </View>
-            <TextInput
-              accessibilityLabel="Buscar item por nome"
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Buscar item"
-              placeholderTextColor={colors.textMuted}
-              style={styles.search}
-            />
-            <FilterRail values={["Todos", ...catalogCategories]} selected={category} onSelect={setCategory} />
-            <FilterRail values={Object.keys(sortLabels)} selected={sort} labels={sortLabels} onSelect={(value) => setSort(value as CatalogSort)} />
-            <FilterRail
-              values={Object.keys(estimateLabels)}
-              selected={estimateType}
-              labels={estimateLabels}
-              onSelect={(value) => setEstimateType(value as EstimateType | "todos")}
-            />
-            <View style={styles.toggleRow}>
-              <FilterChip label="Cabe no saldo" selected={onlyAffordable} onPress={() => setOnlyAffordable((value) => !value)} />
-              <FilterChip label="Ja comprados" selected={onlyBought} onPress={() => setOnlyBought((value) => !value)} />
+            <View style={styles.filtersPanel}>
+              <FilterSection title="Categoria">
+                <FilterRail values={primaryCategories} selected={category} onSelect={setCategory} />
+                <FilterRail values={catalogCategories.filter((item) => !primaryCategories.includes(item))} selected={category} onSelect={setCategory} />
+              </FilterSection>
+              <FilterSection title="Ordenar">
+                <FilterRail values={Object.keys(sortLabels)} selected={sort} labels={sortLabels} onSelect={(value) => setSort(value as CatalogSort)} />
+              </FilterSection>
+              <FilterSection title="Tipo">
+                <FilterRail
+                  values={Object.keys(estimateLabels)}
+                  selected={estimateType}
+                  labels={estimateLabels}
+                  onSelect={(value) => setEstimateType(value as EstimateType | "todos")}
+                />
+              </FilterSection>
+              <View style={styles.toggleRow}>
+                <FilterChip label="Cabe no saldo" selected={onlyAffordable} onPress={() => setOnlyAffordable((value) => !value)} />
+                <FilterChip label="Ja comprados" selected={onlyBought} onPress={() => setOnlyBought((value) => !value)} />
+              </View>
             </View>
             <Text style={styles.resultCount}>
               {filteredItems.length} itens encontrados {scrollOffset > 300 ? "- continue gastando" : ""}
@@ -309,6 +325,15 @@ function FilterRail<T extends string>({
   );
 }
 
+function FilterSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View style={styles.filterSection}>
+      <Text style={styles.filterTitle}>{title}</Text>
+      {children}
+    </View>
+  );
+}
+
 function FilterChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
     <Pressable
@@ -319,6 +344,32 @@ function FilterChip({ label, selected, onPress }: { label: string; selected: boo
       style={[styles.chip, selected && styles.chipSelected]}
     >
       <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function CommandButton({
+  label,
+  icon: Icon,
+  onPress,
+  accent = false,
+}: {
+  label: string;
+  icon: LucideIcon;
+  onPress: () => void;
+  accent?: boolean;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => [styles.commandButton, accent && styles.commandButtonAccent, pressed && styles.commandButtonPressed]}
+    >
+      <Icon size={18} color={accent ? colors.background : colors.text} strokeWidth={2.4} />
+      <Text style={[styles.commandText, accent && styles.commandTextAccent]} numberOfLines={2} adjustsFontSizeToFit>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -416,7 +467,7 @@ const styles = StyleSheet.create({
   },
   balance: {
     color: colors.text,
-    fontSize: 38,
+    fontSize: 32,
     lineHeight: 44,
     fontWeight: "900",
   },
@@ -455,15 +506,81 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
   },
-  search: {
-    minHeight: 46,
+  controlPanel: {
+    gap: 10,
+  },
+  commandGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  commandButton: {
+    flexGrow: 1,
+    flexBasis: "31%",
+    minWidth: 108,
+    minHeight: 48,
     borderRadius: 8,
-    backgroundColor: colors.surface,
-    color: colors.text,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingHorizontal: 14,
+    backgroundColor: colors.surfaceSoft,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 7,
+  },
+  commandButtonAccent: {
+    backgroundColor: colors.lime,
+    borderColor: colors.lime,
+  },
+  commandButtonPressed: {
+    transform: [{ scale: 0.98 }],
+  },
+  commandText: {
+    color: colors.text,
+    fontWeight: "800",
+    fontSize: 13,
+    textAlign: "center",
+    flexShrink: 1,
+  },
+  commandTextAccent: {
+    color: colors.background,
+  },
+  searchWrap: {
+    minHeight: 48,
+    borderRadius: 8,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  search: {
+    flex: 1,
+    minHeight: 46,
+    color: colors.text,
     fontSize: 16,
+  },
+  filtersPanel: {
+    gap: 12,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: "#0a1324",
+  },
+  filterSection: {
+    gap: 8,
+  },
+  filterTitle: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0,
   },
   filterRail: {
     gap: 8,
@@ -478,6 +595,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
   },
   chipSelected: {
     backgroundColor: colors.lime,
@@ -486,12 +604,14 @@ const styles = StyleSheet.create({
   chipText: {
     color: colors.text,
     fontWeight: "700",
+    fontSize: 13,
   },
   chipTextSelected: {
     color: colors.background,
   },
   toggleRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   resultCount: {
