@@ -12,7 +12,6 @@
     },
     "android": {
       "package": "com.froeder.gastecomomusk",
-      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#050b18",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

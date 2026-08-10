@@ -24,6 +24,7 @@
   "submit": {
     "production": {
       "android": {
+        "serviceAccountKeyPath": "/home/john/Downloads/gaste-como-musk-service-account.json.json",
         "track": "internal",
         "releaseStatus": "draft"
       }
